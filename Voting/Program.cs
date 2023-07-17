@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,41 +69,9 @@ namespace Voting
             return data;
         }
 
-        static void Main(string[] args)
+        static string Analysis(string data)
         {
-            //прочитать данные
-            /*
-            string data = "" +
-                "3\n" +
-                "\n" +
-                "3\n" +
-                "A\n" +
-                "B\n" +
-                "C\n" +
-                "1 2 3\n" +
-                "2 1 3\n" +
-                "2 3 1\n" +
-                "1 2 3\n" +
-                "3 1 2\n" +
-                "\n" +
-                "4\n" +
-                "A\n" +
-                "B\n" +
-                "C\n" +
-                "D\n" +
-                "1 4 3 2\n" +
-                "2 4 3 1\n" +
-                "\n" +
-                "3\n" +
-                "A\n" +
-                "B\n" +
-                "C\n" +
-                "1 2 3\n" +
-                "2 1 3\n" +
-                "2 3 1\n" +
-                "1 2 3\n";
-            */
-            string data = ReadInput(args[0]);
+            StringBuilder result = new StringBuilder();
 
             string[] lines = data.Split('\n');
             int linesIter = 0;
@@ -130,7 +99,7 @@ namespace Voting
                 string[] ballotStr;
                 List<List<int>> ballot = new List<List<int>>();
                 int ballotInd = 0;
-                while (lines[linesIter] != string.Empty)
+                while (linesIter < lines.Length && lines[linesIter] != string.Empty && lines[linesIter] != "\r")
                 {
                     ballot.Add(new List<int>());
                     ballotStr = lines[linesIter++].Split(' ');
@@ -147,7 +116,7 @@ namespace Voting
                 while (winnersIndex.Count == 0)
                 {
                     int allScore = 0;
-                    foreach(Pair<string, int> cand in cands)
+                    foreach (Pair<string, int> cand in cands)
                     {
                         cand.Value = 0;
                     }
@@ -199,10 +168,10 @@ namespace Voting
                         for (int i = 0; i < losersIndex.Count; i++)
                         {
                             cands.RemoveAt(losersIndex[i]);
-                            foreach(List<int> currBallot in ballot)
+                            foreach (List<int> currBallot in ballot)
                             {
                                 currBallot.Remove(losersIndex[i] + 1);
-                                for(int scoreInd = 0; scoreInd < currBallot.Count; scoreInd++)
+                                for (int scoreInd = 0; scoreInd < currBallot.Count; scoreInd++)
                                 {
                                     if (currBallot[scoreInd] > losersIndex[i] + 1)
                                     {
@@ -217,14 +186,24 @@ namespace Voting
                     }
                 }
 
-                //вывести информацию о победителе блока
-                foreach(Pair<string, int> cand in cands)
+                //сохранить информацию о победителе блока
+                foreach (Pair<string, int> cand in cands)
                 {
-                    Console.WriteLine(cand.Key);
+                    result.AppendLine(cand.Key);
                 }
-                Console.WriteLine();
+                result.AppendLine();
             }
-            Console.ReadLine();
+            return result.ToString();
+        }
+
+        static void Main(string[] args)
+        {
+            //прочитать данные
+            string data = ReadInput(args[0]);
+
+            string result = Analysis(data);
+
+            Console.WriteLine(result);
         }
     }
 }
